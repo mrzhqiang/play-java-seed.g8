@@ -23,17 +23,18 @@ import play.mvc.EssentialFilter;
 public final class Filters implements HttpFilters {
 
   private final Environment env;
-  private final EssentialFilter versionFilter;
-  private final EssentialFilter accessLogFilter;
+  private final List<EssentialFilter> filters;
 
   @Inject
   public Filters(Environment env, VersionFilter versionFilter, AccessLogFilter accessLogFilter) {
     this.env = env;
-    this.versionFilter = versionFilter;
-    this.accessLogFilter = accessLogFilter;
+    this.filters = Lists.newArrayList(versionFilter, accessLogFilter);
   }
 
   @Override public List<EssentialFilter> getFilters() {
-    return Lists.newArrayList(accessLogFilter, versionFilter);
+    if (env.isTest()) {
+      return filters;
+    }
+    return Collections.emptyList();
   }
 }

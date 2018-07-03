@@ -1,10 +1,11 @@
-package filters;
+package framework.filters;
 
 import akka.stream.Materializer;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import play.Logger;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -30,8 +31,8 @@ public final class AccessLogFilter extends Filter {
         req.remoteAddress(),
         req.host(),
         req.queryString(),
-        req.getHeader("referer"),
-        req.getHeader("user-agent"));
+        req.header("referer"),
+        req.header("user-agent"));
     Logger.of("access").info(msg);
     return next.apply(req);
   }

@@ -1,4 +1,4 @@
-package filters;
+package framework.filters;
 
 import akka.stream.Materializer;
 import com.typesafe.config.Config;
