@@ -10,11 +10,17 @@ import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
 
+/**
+ * 访问日志过滤器。
+ * <p>
+ * 参考：<a href="https://www.playframework.com/documentation/2.6.x/JavaHttpFilters">官方文档。</a>
+ *
+ * @author mrzhqiang
+ */
 @Singleton
 public final class AccessLogFilter extends Filter {
 
-  private static final String LOG_FORMAT =
-      "method=%s uri=%s remote-address=%s domain=%s query-string=%s referer=%s user-agent=[%s]";
+  private static final String MESSAGE = "method={} uri={} elapsed {}ms and returned {}";
 
   @Inject
   public AccessLogFilter(Materializer mat) {
@@ -25,15 +31,14 @@ public final class AccessLogFilter extends Filter {
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> next,
       Http.RequestHeader req) {
-    String msg = String.format(LOG_FORMAT,
-        req.method(),
-        req.uri(),
-        req.remoteAddress(),
-        req.host(),
-        req.queryString(),
-        req.header("referer"),
-        req.header("user-agent"));
-    Logger.of("access").info(msg);
-    return next.apply(req);
+    long startTime = System.currentTimeMillis();
+    return next.apply(req).thenApply(result -> {
+      long endTime = System.currentTimeMillis();
+      long requestTime = endTime - startTime;
+
+      Logger.of(AccessLogFilter.class)
+          .info(MESSAGE, req.method(), req.uri(), requestTime, result.status());
+      return result.withHeader("Request-Time", String.valueOf(requestTime));
+    });
   }
 }

@@ -1,39 +1,36 @@
 package framework;
 
-import com.google.common.collect.Lists;
-import filters.AccessLogFilter;
-import filters.VersionFilter;
+import framework.filters.AccessLogFilter;
+import framework.filters.VersionFilter;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import play.Environment;
-import play.http.HttpFilters;
+import play.http.DefaultHttpFilters;
 import play.mvc.EssentialFilter;
 
 /**
- * This class configures filters that run on every request. This
- * class is queried by Play to get a list of filters.
+ * 自定义过滤器。
  * <p>
- * Play will automatically use filters from any class called
- * <code>Filters</code> that is placed the root package. You can load filters
- * from a different class by adding a `play.http.filters` setting to
- * the <code>application.conf</code> configuration file.
+ * 参考：<a href="https://www.playframework.com/documentation/2.6.x/JavaHttpFilters">Filter 文档。</a>
+ *
+ * @author mrzhqiang
  */
 @Singleton
-public final class Filters implements HttpFilters {
+public final class Filters extends DefaultHttpFilters {
 
   private final Environment env;
-  private final List<EssentialFilter> filters;
 
   @Inject
-  public Filters(Environment env, VersionFilter versionFilter, AccessLogFilter accessLogFilter) {
+  public Filters(VersionFilter versionFilter, AccessLogFilter accessLogFilter, Environment env) {
+    super(versionFilter, accessLogFilter);
     this.env = env;
-    this.filters = Lists.newArrayList(versionFilter, accessLogFilter);
   }
 
   @Override public List<EssentialFilter> getFilters() {
     if (env.isTest()) {
-      return filters;
+      return super.getFilters();
     }
     return Collections.emptyList();
   }

@@ -1,102 +1,73 @@
-package core.exception;
+package util.exception;
 
-import java.util.HashMap;
-import java.util.Map;
+/**
+ * 应用异常。
+ * <p>
+ * 类似 {@link NullPointerException}、{@link IllegalArgumentException} 和
+ * {@link IllegalStateException} 等等原生异常类，都是针对 Java 的对象和方法所建立的，
+ * 开发者应该自定义应用级别的异常类，以免造成误解。
+ *
+ * @author mrzhqiang
+ */
+public abstract class ApplicationException extends RuntimeException {
 
-public class ApplicationException extends RuntimeException {
-
-  private final static Map<Integer, String> defaultErrorMessages = new HashMap<>();
-
-  /** 服务器内部错误。 */
-  public static final int SERVER_ERROR = 10000;
-  /** 序列号为 Null 或 Empty。 */
-  public static final int USER_ID_EMPTY = 10001;
-  /** 序列号不合法。 */
-  public static final int USER_ID_INVALID = 10002;
-  /** 不存在的序列号。 */
-  public static final int USER_ID_NOT_EXISTS = 10003;
-  /** 时间字符串为 Null 或 Empty。 */
-  public static final int TIME_EMPTY = 11001;
-  /** 时间字符串无法转换为 UTC Date。 */
-  public static final int TIME_INVALID = 11002;
-  /** 起始时间应当在结束时间之前。 */
-  public static final int TIME_BEFORE = 11003;
-  /** 页面序号不合法。 */
-  public static final int PAGE_INVALID = 11004;
-  /** 页面序号超出范围（1 —— total - (page -1) * size）。 */
-  public static final int PAGE_WITHOUT = 11005;
-  /** 分页大小不合法（10 —— Integer.MAX）。 */
-  public static final int SIZE_INVALID = 11006;
-  /** 纬度不合法（-90 —— 90）。 */
-  public static final int LAT_INVALID = 11007;
-  /** 经度不合法（-180 —— 180）。 */
-  public static final int LON_INVALID = 11008;
-  /** 上纬度应当大于下纬度。 */
-  public static final int LAT_GREATER_THAN = 11009;
-  /** 左经度应当小于右经度。 */
-  public static final int LON_LESS_THAN = 11010;
-  /** 秒钟范围不合法（0 —— Long.MAX）。 */
-  public static final int SECONDS_INVALID = 11011;
-
-  static {
-    defaultErrorMessages.put(SERVER_ERROR, "The error is server bug.");
-    defaultErrorMessages.put(USER_ID_EMPTY, "The user ID must be not null and not empty.");
-    defaultErrorMessages.put(USER_ID_INVALID, "The user ID invalid that should is serial number.");
-    defaultErrorMessages.put(USER_ID_NOT_EXISTS, "The user ID not exists in server.");
-    defaultErrorMessages.put(TIME_EMPTY, "The time string must be not null and not empty.");
-    defaultErrorMessages.put(TIME_INVALID, "The time string invalid that should is UTC format.");
-    defaultErrorMessages.put(TIME_BEFORE, "The start time must be before the end time.");
-    defaultErrorMessages.put(PAGE_INVALID, "The page value must be greater than 0.");
-    defaultErrorMessages.put(PAGE_WITHOUT, "The page value has out of range.");
-    defaultErrorMessages.put(SIZE_INVALID, "The size value must be greater than 9.");
-    defaultErrorMessages.put(LAT_INVALID, "The latitude value in [-90, 90].");
-    defaultErrorMessages.put(LON_INVALID, "The longitude value in [-180, 180].");
-    defaultErrorMessages.put(LAT_GREATER_THAN,
-        "The upper left latitude must be greater than the lower right latitude.");
-    defaultErrorMessages.put(LON_LESS_THAN,
-        "The upper left longitude must be less than the lower right longitude.");
-    defaultErrorMessages.put(SECONDS_INVALID,
-        "The seconds value must be integer and greater than 0.");
+  ApplicationException(String message) {
+    super(message);
   }
 
-  public int errorCode;
-  public String property;
-  public String developerMessage;
+  public abstract int statusCode();
 
-  public ApplicationException(int errorCode) {
-    this(errorCode, null);
+  public static void badRequest(String message) {
+    throw new BadRequestException(message);
   }
 
-  public ApplicationException(String message) {
-    this(SERVER_ERROR, message);
+  public static void badRequest(Throwable cause) {
+    throw new BadRequestException(cause.getMessage());
   }
 
-  public ApplicationException(Throwable cause) {
-    this(SERVER_ERROR, null, cause);
+  public static void forbidden(String message) {
+    throw new ForbiddenException(message);
   }
 
-  public ApplicationException(int errorCode, String message) {
-    this(errorCode, message, null);
+  public static void forbidden(Throwable cause) {
+    throw new ForbiddenException(cause.getMessage());
   }
 
-  public ApplicationException(int errorCode, String message, Throwable cause) {
-    this(errorCode, message, cause, "");
+  public static void notFound(String message) {
+    throw new NotFoundException(message);
   }
 
-  public ApplicationException(int errorCode, String message, Throwable cause, String property) {
-    super(defaultErrorMessages.getOrDefault(errorCode, message));
-    if (cause != null) {
-      initCause(cause);
+  public static void notFound(Throwable cause) {
+    throw new NotFoundException(cause.getMessage());
+  }
+
+  private static class BadRequestException extends ApplicationException {
+    BadRequestException(String message) {
+      super(message);
     }
-    this.errorCode = errorCode;
-    this.property = property;
+
+    @Override public int statusCode() {
+      return 400;
+    }
   }
 
-  public int getHttpStatus() {
-    return 500;
+  private static class ForbiddenException extends ApplicationException {
+    ForbiddenException(String message) {
+      super(message);
+    }
+
+    @Override public int statusCode() {
+      return 403;
+    }
   }
 
-  public String getDeveloperMessage() {
-    return developerMessage;
+  private static class NotFoundException extends ApplicationException {
+    NotFoundException(String message) {
+      super(message);
+    }
+
+    @Override public int statusCode() {
+      return 404;
+    }
   }
 }
