@@ -20,7 +20,9 @@ import play.mvc.Result;
 @Singleton
 public final class AccessLogFilter extends Filter {
 
-  private static final String MESSAGE = "method={} uri={} elapsed {}ms and returned {}";
+  private static final String MESSAGE = "IP={} method={} uri={} status={} elapsed={}ms";
+
+  private final Logger.ALogger logger = Logger.of("access");
 
   @Inject
   public AccessLogFilter(Materializer mat) {
@@ -36,8 +38,7 @@ public final class AccessLogFilter extends Filter {
       long endTime = System.currentTimeMillis();
       long requestTime = endTime - startTime;
 
-      Logger.of(AccessLogFilter.class)
-          .info(MESSAGE, req.method(), req.uri(), requestTime, result.status());
+      logger.info(MESSAGE, req.remoteAddress(), req.method(), req.uri(), result.status(), requestTime);
       return result.withHeader("Request-Time", String.valueOf(requestTime));
     });
   }
