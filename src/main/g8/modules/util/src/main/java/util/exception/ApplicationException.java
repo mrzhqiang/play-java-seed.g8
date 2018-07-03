@@ -3,10 +3,8 @@ package core.exception;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author songlinwei created on 24/10/2016.
- */
 public class ApplicationException extends RuntimeException {
+
   private final static Map<Integer, String> defaultErrorMessages = new HashMap<>();
 
   /** 服务器内部错误。 */
@@ -94,11 +92,6 @@ public class ApplicationException extends RuntimeException {
     this.property = property;
   }
 
-  /**
-   * overrideable by subclass
-   *
-   * @return int http status code
-   */
   public int getHttpStatus() {
     return 500;
   }
