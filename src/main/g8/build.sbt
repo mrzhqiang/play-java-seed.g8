@@ -1,6 +1,6 @@
 name := """$name$"""
 organization := "$organization$"
-version := "$project_version$"
+version := "1.0-SNAPSHOT"
 scalaVersion := "$scala_version$"
 
 lazy val util = project in file("modules/util")
