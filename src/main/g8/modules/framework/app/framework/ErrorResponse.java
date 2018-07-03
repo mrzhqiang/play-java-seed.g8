@@ -9,44 +9,43 @@ import java.util.Locale;
  *
  * @author mrzhqiang
  */
-public final class ErrorResponse {
+final class ErrorResponse {
+
+  private static final int HTTP_STATUS = 500;
+  private static final int CODE = -1;
+  private static final String MESSAGE = "A unknown error occurred.";
+  private static final String DEVELOPER_MESSAGE = "Reference [moreInfo].";
+  private static final String MORE_INFO = "http://developer.randall.top";
 
   private static final String APP_PACKAGES_REGEX =
       "^(controllers|models|util|framework|core|service|rest).*";
 
-  public int httpStatus;
-  public int code;
-  public String message;
-  public String developerMessage;
-  public String moreInfo;
+  final int httpStatus;
+  final int code;
+  final String message;
+  final String developerMessage;
+  final String moreInfo;
 
-  private ErrorResponse() {
-    this.httpStatus = 500;
-    this.code = -1;
-    this.message = "A unknown error occurred.";
-    this.developerMessage = "Reference [moreInfo].";
-    this.moreInfo = "http://developer.randall.top";
+  private ErrorResponse(int httpStatus, int code, String message, String developerMessage,
+      String moreInfo) {
+    this.httpStatus = httpStatus;
+    this.code = code;
+    this.message = message;
+    this.developerMessage = developerMessage;
+    this.moreInfo = moreInfo;
   }
 
-  public static ErrorResponse unknownError(int code) {
-    ErrorResponse error = new ErrorResponse();
-    error.code = code;
-    return error;
+  static ErrorResponse unknownError(int code) {
+    return new ErrorResponse(HTTP_STATUS, code, MESSAGE, DEVELOPER_MESSAGE, MORE_INFO);
   }
 
-  public static ErrorResponse clientError(int httpStatus, int code, String message) {
-    ErrorResponse error = new ErrorResponse();
-    error.httpStatus = httpStatus;
-    error.code = code;
-    error.message = message;
-    return error;
+  static ErrorResponse clientError(int httpStatus, int code, String message) {
+    return new ErrorResponse(httpStatus, code, message, DEVELOPER_MESSAGE, MORE_INFO);
   }
 
-  public static ErrorResponse serverError(Throwable throwable) {
-    ErrorResponse error = new ErrorResponse();
-    error.message = "A server error occurred.";
-    error.developerMessage = findMessageFromStackTrace(throwable);
-    return error;
+  static ErrorResponse serverError(Throwable throwable) {
+    return new ErrorResponse(HTTP_STATUS, CODE, "A server error occurred.",
+        findMessageFromStackTrace(throwable), MORE_INFO);
   }
 
   private static String findMessageFromStackTrace(Throwable throwable) {
