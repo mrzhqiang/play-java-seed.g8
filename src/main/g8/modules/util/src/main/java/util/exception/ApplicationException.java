@@ -17,28 +17,36 @@ public abstract class ApplicationException extends RuntimeException {
 
   public abstract int statusCode();
 
-  public static void badRequest(String message) {
-    throw new BadRequestException(message);
+  public static ApplicationException badRequest(String message) {
+    return new BadRequestException(message);
   }
 
-  public static void badRequest(Throwable cause) {
-    throw new BadRequestException(cause.getMessage());
+  public static ApplicationException badRequest(Throwable cause) {
+    return new BadRequestException(cause.getMessage());
   }
 
-  public static void forbidden(String message) {
-    throw new ForbiddenException(message);
+  public static ApplicationException unauthorized(String message) {
+    return new UnauthorizedException(message);
   }
 
-  public static void forbidden(Throwable cause) {
-    throw new ForbiddenException(cause.getMessage());
+  public static ApplicationException unauthorized(Throwable cause) {
+    return new UnauthorizedException(cause.getMessage());
   }
 
-  public static void notFound(String message) {
-    throw new NotFoundException(message);
+  public static ApplicationException forbidden(String message) {
+    return new ForbiddenException(message);
   }
 
-  public static void notFound(Throwable cause) {
-    throw new NotFoundException(cause.getMessage());
+  public static ApplicationException forbidden(Throwable cause) {
+    return new ForbiddenException(cause.getMessage());
+  }
+
+  public static ApplicationException notFound(String message) {
+    return new NotFoundException(message);
+  }
+
+  public static ApplicationException notFound(Throwable cause) {
+    return new NotFoundException(cause.getMessage());
   }
 
   private static class BadRequestException extends ApplicationException {
@@ -48,6 +56,16 @@ public abstract class ApplicationException extends RuntimeException {
 
     @Override public int statusCode() {
       return 400;
+    }
+  }
+
+  private static class UnauthorizedException extends ApplicationException {
+    UnauthorizedException(String message) {
+      super(message);
+    }
+
+    @Override public int statusCode() {
+      return 401;
     }
   }
 
